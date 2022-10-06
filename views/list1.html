@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>list</title>
+    <style>
+        ul,li {
+            list-style: none;
+            padding: 0px;
+            margin: 0px;
+        }
+        ul li {
+            margin-top: 6px;
+        }
+        ul li button {
+            border: none;
+            outline: none;
+            color: 	#434A54;
+            background-color: #3BAEDA;
+            border-radius: 5px; // 圆角
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<ul id="lb">
+    <li><b>标题</b><span>[标题]</span> <b>作者</b><span>[作者]</span><button onclick="del()">删除</button></li>
+</ul>
+<script src="/static/jquery.min.js"></script>
+<script>
+    function init() {
+        $.get("/api/list/data",{},function (resp) {
+            let html=[];
+            for (let i = 0; i < resp.length; i++) {
+                html.push('<li>'+resp[i].id+'---><b>标题</b><span>['+resp[i].title+']</span> <b>作者</b><span>['+resp[i].author+']</span><button onclick="del('+resp[i].id+')">删除</button></li>')
+            }
+            $("#lb").html(html.join(""))
+        },"json")
+    }
+    init()
+
+    // 删除del 列表数据
+    function del(id) {
+        $.get("/api/list/del",{id:id},function (resp){
+            alert(resp)
+            if (resp == "删除成功") {
+                init()
+            }
+        })}
+
+</script>
+</body>
+</html>

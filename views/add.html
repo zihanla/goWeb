@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>add页面</title>
+    <link href="/static/ueditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+    <style>
+        .abtn {
+            display: block;
+            width:45px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            color: 	#434A54;
+            background-color: #3BAEDA;
+            border-radius: 5px; // 圆角
+        margin-left: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+标题：<input type="text" id="title"><br>
+作者：<input type="text" id="author"><br>
+点击数：<input type="number" id="hits"><br>
+<!--cols 长 rows 宽-->
+内容：<textarea type="content" style="width: 600px;" cols="30" rows="10" id="content"></textarea>
+<button onclick="add()">添加</button>
+<br>
+<a href="/list" class="abtn">返回</a>
+
+<script src="/static/jquery.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/umeditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/umeditor.min.js"></script>
+<script type="text/javascript" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+<script>
+    //实例化编辑器
+    let um = UM.getEditor('content')
+    function add() {
+       // console.log("幸运") // 测试是否关联成功
+        let title = $("#title").val()
+        let author = $("#author").val()
+        let hits = $("#hits").val()
+        let content = um.getContent()
+        // 提交请求
+        // $.post("/api/article/add",{
+        //     title:title,
+        //     author:author,
+        //     hits:hits,
+        //     content:content
+        // },function (resp){
+        //     if (resp.code == 200) {
+        //         // 重新加载当前页面
+        //         location.reload()
+        //     } else {
+        //         alert(resp.msg)
+        //         console.log(resp.data)
+        //     }
+        // },"json") // == JSON.pares 把JSON转换为js对象
+        // 换用payload 传输数据
+        $.ajax({
+            url: "/api/article/add",
+            type: "post",
+            // JSON.stringify 把对象转换为JSON格式
+            data: JSON.stringify({title:title,author:author,hits:Number(hits),content:content}),
+            contentType: "application/json", // 规定发送给服务端的数据类型
+            dataType:"json", // 规定服务端给我们的数据类型
+            complete: function (resp) {
+                // console.log(resp)
+                // 通过payload 方式传输过来的数据更多了
+                // console.log(resp.responseJSON.code)
+            }
+        })
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <title>list</title>
+    <style>
+        ul,li {
+            list-style: none;
+            padding: 0px;
+            margin: 0px;
+        }
+        ul li {
+            margin-top: 6px;
+        }
+        ul li button {
+            border: none;
+            outline: none;
+            color: 	#434A54;
+            background-color: #3BAEDA;
+            border-radius: 5px; // 圆角
+            margin-left: 5px;
+
+        }
+        .abtn {
+            display: block;
+            width:45px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            color: 	#434A54;
+            background-color: #3BAEDA;
+            border-radius: 5px; // 圆角
+            margin-left: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+<a href="/add" class="abtn">添加</a>
+<ul id="lb">
+    <li>[id]<b>标题</b><span>[标题]</span> <b>作者</b><span>[作者]</span><button onclick="del()">删除</button></li>
+</ul>
+<div id="page"></div>
+<!--定义模板-->
+<!--    <a class="abtn" href="/detail?id={{item.id}}">详情</a>-->
+<script id="test" type="text/html">
+
+    <ul>
+        {{each items item i}}
+        <li>[{{item.id}}]<b>标题</b><span>[{{item.title}}]</span> <b>作者</b><span>[{{item.author}}]</span><button onclick="del({{item.id}})">删除</button> <button style="margin-left: 5px" onclick="goEdit({{item.id}})"">修改</button> <button style="margin-left: 5px" onclick="goDetail({{item.id}})">详情</button></li>
+        {{/each}}
+    </ul>
+</script>
+<script src="/static/jquery.min.js"></script>
+<script src="/static/template-web.js"></script>
+<script src="/static/layui/layui.js"></script>
+
+<script>
+    layui.use(['laypage','layer', 'form'],function(){
+        var laypage = layui.laypage
+            ,layer = layui.layer
+            ,form = layui.form;
+
+        function init(pi,ps) {
+            $.get("/api/article/page",{pi:pi,ps:ps},function (resp) {
+                if (resp.code == 200) {
+                    let html = template("test",resp.data)
+                    // console.log(html)
+                    // 打印内容为循环的里组装的标签
+                    // 写入指定标签里
+                    $("#lb").html(html)
+                    //执行一个laypage实例
+                    laypage.render({
+                        elem: 'page' //注意，这里的 test1 是 ID，不用加 # 号
+                        ,count: resp.data.count //数据总数，从服务端得到
+                        ,layout: ['prev', 'page', 'next','count','limit','skip']
+                        ,limit: ps  // 每页多少条
+                        ,curr: pi // 当前页
+                        ,limits:[10, 20, 30, 40, 50]
+                        ,jump: function(obj, first){
+                            //obj包含了当前分页的所有参数，比如：
+                            console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+                            console.log(obj.limit); //得到每页显示的条数
+
+                            //首次不执行
+                            if(!first){
+                                //do something
+                                init(obj.curr,obj.limit)
+                            }
+                        }
+                    });
+                } else {
+                    alert(resp.msg)
+                }
+                // 传入指定模板 和 数据
+
+            },"json")
+        }
+        init(1,10)
+
+    });
+
+    // 删除del 列表数据
+    function del(id) {
+        $.get("/api/list/del",{id:id},function (resp){
+            if (resp.code == 200) {
+                // 刷新当前网页
+                location.reload();
+            } else {
+                alert(resp.msg)
+            }
+        })}
+
+    // 跳转goEdit
+    function goEdit(id){
+        window.location.href= "/edit?id="+ id
+    }
+
+    // 跳转goDetail
+    function goDetail(id){
+        window.location.href= "/detail?id="+ id
+    }
+</script>
+</body>
+</html>

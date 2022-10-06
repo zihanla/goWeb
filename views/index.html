@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>index</title>
+</head>
+<body>
+<input type="text"  id="id" value="1">
+<button onclick="search()">查找</button>
+<br>
+<div>
+    <h2 id="title">标题</h2>
+    <h3 id="author">作者</h3>
+    <p id="content">内容</p>
+</div>
+<script src="/static/jquery.min.js"></script>
+<script>
+    function search() {
+        // alert("点击事件")
+        // 拿ipt的val值
+        var id = $("#id").val()
+        // 调用指定接口 ajax
+        $.get("/api/index/data",{id:id},function (resp) {
+            // console.log(resp) // 测试是否可以成功输出
+            // json嵌套 取值
+            $("#title").html(resp.data.title)
+            $("#author").html(resp.data.author)
+            $("#content").html(resp.data.content)
+        },'json')
+    }
+</script>
+</body>
+</html>
